@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'images avec Stable Diffusion</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Générateur d'images avec Stable Diffusion</h1>
+    </header>
+    
+    <main>
+        <section class="prompt-section">
+            <h2>Entrez votre prompt</h2>
+            <form id="prompt-form">
+                <div class="form-group">
+                    <label for="prompt-input">Description de l'image souhaitée:</label>
+                    <textarea id="prompt-input" name="prompt" rows="4" placeholder="Décrivez l'image que vous souhaitez générer..." required></textarea>
+                </div>
+                <button type="submit" id="generate-btn">Générer l'image</button>
+            </form>
+        </section>
+        
+        <section class="result-section">
+            <h2>Résultat</h2>
+            <div id="result-container">
+                <p>Votre image apparaîtra ici</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 - Générateur d'images avec Stable Diffusion</p>
+    </footer>
+
+    <script>
+        document.getElementById('prompt-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const prompt = document.getElementById('prompt-input').value;
+            const resultContainer = document.getElementById('result-container');
+            
+            // Afficher le message "développement en cours"
+            resultContainer.innerHTML = "<p>Développement en cours...</p>";
+            
+            // Ici, nous ajouterons plus tard le code pour appeler l'API Stable Diffusion
+            console.log("Prompt soumis:", prompt);
+        });
+    </script>
+</body>
+</html>
