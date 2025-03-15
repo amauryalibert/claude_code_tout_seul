@@ -28,6 +28,11 @@
             <div id="result-container">
                 <p>Votre image apparaîtra ici</p>
             </div>
+            <div id="loading" class="hidden">
+                <p>Génération en cours...</p>
+                <div class="spinner"></div>
+            </div>
+            <div id="error-message" class="hidden"></div>
         </section>
     </main>
     
@@ -36,16 +41,71 @@
     </footer>
 
     <script>
-        document.getElementById('prompt-form').addEventListener('submit', function(event) {
+        const API_URL = 'http://localhost:3000/generate-image';
+        const resultContainer = document.getElementById('result-container');
+        const loadingElement = document.getElementById('loading');
+        const errorMessageElement = document.getElementById('error-message');
+
+        document.getElementById('prompt-form').addEventListener('submit', async function(event) {
             event.preventDefault();
             const prompt = document.getElementById('prompt-input').value;
-            const resultContainer = document.getElementById('result-container');
             
-            // Afficher le message "développement en cours"
-            resultContainer.innerHTML = "<p>Développement en cours...</p>";
+            if (!prompt.trim()) {
+                errorMessageElement.textContent = "Veuillez entrer un prompt valide";
+                errorMessageElement.classList.remove('hidden');
+                return;
+            }
+
+            // Réinitialiser les messages d'erreur
+            errorMessageElement.classList.add('hidden');
             
-            // Ici, nous ajouterons plus tard le code pour appeler l'API Stable Diffusion
-            console.log("Prompt soumis:", prompt);
+            // Afficher le chargement
+            resultContainer.innerHTML = "";
+            loadingElement.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                loadingElement.classList.add('hidden');
+                
+                // Vérifier si des images ont été générées
+                if (data.artifacts && data.artifacts.length > 0) {
+                    // Afficher l'image générée
+                    const image = document.createElement('img');
+                    image.src = `data:image/png;base64,${data.artifacts[0].base64}`;
+                    image.alt = `Image générée pour: ${prompt}`;
+                    image.className = 'generated-image';
+                    
+                    resultContainer.innerHTML = '';
+                    resultContainer.appendChild(image);
+                    
+                    // Ajouter un bouton pour télécharger l'image
+                    const downloadBtn = document.createElement('a');
+                    downloadBtn.href = `data:image/png;base64,${data.artifacts[0].base64}`;
+                    downloadBtn.download = `stable-diffusion-${Date.now()}.png`;
+                    downloadBtn.textContent = 'Télécharger l\'image';
+                    downloadBtn.className = 'download-btn';
+                    resultContainer.appendChild(downloadBtn);
+                } else {
+                    resultContainer.innerHTML = "<p>Aucune image n'a été générée</p>";
+                }
+            } catch (error) {
+                console.error('Erreur lors de la génération de l\'image:', error);
+                loadingElement.classList.add('hidden');
+                errorMessageElement.textContent = `Erreur: ${error.message || 'Problème de connexion au serveur'}`;
+                errorMessageElement.classList.remove('hidden');
+            }
         });
     </script>
 </body>
